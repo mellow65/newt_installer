@@ -1,5 +1,5 @@
 # newt_installer
-Short script to set up a systemd service of Newt for Pangolin.
+Short script to set up a systemd service of Newt for Pangolin.  This script only pulls the latest amd version of newt.  
 
 Download Newt Installer
 ```bash
