@@ -9,6 +9,11 @@ read -p "Enter your Newt Endpoint URL: " ENDPOINT
 read -p "Enter your Newt ID: " ID
 read -p "Enter your Newt Secret: " SECRET
 
+# Reminder to visit Pangolin site
+echo "Please go back to the Pangolin site and click 'Create Site'."
+echo "Once you have completed that step, return here and press Enter to continue."
+read -p "Press Enter to continue..."
+
 # Get latest release URL from GitHub
 echo "Fetching latest Newt release..."
 LATEST_URL=$(curl -s https://api.github.com/repos/fosrl/newt/releases/latest \
