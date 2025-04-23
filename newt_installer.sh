@@ -4,23 +4,34 @@ set -e
 
 echo "=== Newt VPN Setup Script ==="
 
-# Prompt for input
+# Prompt for user inputs
 read -p "Enter your Newt Endpoint URL: " ENDPOINT
 read -p "Enter your Newt ID: " ID
 read -p "Enter your Newt Secret: " SECRET
 
-# Download and install Newt binary
-echo "Downloading Newt binary..."
-wget -q -O newt "https://github.com/fosrl/newt/releases/download/1.1.2/newt_linux_amd64"
+# Get latest release URL from GitHub
+echo "Fetching latest Newt release..."
+LATEST_URL=$(curl -s https://api.github.com/repos/fosrl/newt/releases/latest \
+  | grep "browser_download_url" \
+  | grep "linux_amd64" \
+  | cut -d '"' -f 4)
+
+if [ -z "$LATEST_URL" ]; then
+  echo "❌ Failed to retrieve latest release URL."
+  exit 1
+fi
+
+echo "Downloading Newt from: $LATEST_URL"
+wget -q -O newt "$LATEST_URL"
 chmod +x newt
 mv newt /usr/local/bin/newt
-echo "Newt installed to /usr/local/bin/newt"
+echo "✅ Newt installed to /usr/local/bin/newt"
 
-# Create systemd service file
+# Create the systemd service file
 SERVICE_FILE="/etc/systemd/system/newt.service"
 echo "Creating systemd service at $SERVICE_FILE..."
 
-bash -c "cat > $SERVICE_FILE" <<EOF
+sudo bash -c "cat > $SERVICE_FILE" <<EOF
 [Unit]
 Description=Newt VPN Client
 After=network.target
@@ -34,11 +45,11 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# Reload systemd and start service
-echo "Reloading systemd..."
+# Reload systemd and enable the service
+echo "Reloading systemd and enabling Newt service..."
 systemctl daemon-reload
 systemctl enable newt
 systemctl start newt
 
-echo "=== Newt VPN setup complete! ==="
+echo "=== ✅ Newt VPN setup complete! ==="
 systemctl status newt --no-pager
