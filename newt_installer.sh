@@ -10,8 +10,8 @@ read -p "Enter your Newt ID: " ID
 read -p "Enter your Newt Secret: " SECRET
 
 # Reminder to visit Pangolin site
-echo "Please go back to the Pangolin site and click 'Create Site'."
-echo "Once you have completed that step, return here and press Enter to continue."
+echo "Please go back to the Pangolin site and click 'Create Site', then 'Save Settings'."
+echo "Once you have completed those steps, return here and press Enter to continue."
 read -p "Press Enter to continue..."
 
 # Prompt user to select the desired Linux version
