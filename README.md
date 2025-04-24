@@ -1,5 +1,5 @@
 # newt_installer
-Short script to set up a systemd service of Newt for Pangolin.  This script only pulls the latest amd version of newt.  
+Short script to set up a systemd service of Newt for Pangolin.  This script only looks for the Linux variants, and allows you to select your CPU and pulls the latest Newt file.  
 https://github.com/fosrl/pangolin
 
 Download Newt Installer
