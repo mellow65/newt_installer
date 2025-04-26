@@ -5,24 +5,24 @@ set -e
 # Parse arguments
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --id)
-      id="$2"
+    --ID)
+      ID="$2"
       shift 2
       ;;
-    --secret)
-      secret="$2"
+    --SECRET)
+      SECRET="$2"
       shift 2
       ;;
-    --endpoint)
-      endpoint="$2"
+    --ENDPOINT)
+      ENDPOINT="$2"
       shift 2
       ;;
-    --version)
-      version="$2"
+    --VERSION)
+      VERSION="$2"
       shift 2
       ;;
-    --architecture)
-      architecture="$2"
+    --ARCHITECTURE)
+      ARCHITECTURE="$2"
       shift 2
       ;;
     *)
@@ -34,15 +34,13 @@ done
 
 
 
-
 # Reminder to visit Pangolin site
 echo "Please go back to the Pangolin site and click 'Create Site' then 'Save Settings'."
 echo "Once you have completed those steps, return here and press Enter to continue."
 read -p "Press Enter to continue..."
 
 
-
-LATEST_URL= "https://github.com/fosrl/newt/releases/download/${version}/${architecture}"
+LATEST_URL="https://github.com/fosrl/newt/releases/download/${VERSION}/${ARCHITECTURE}"
 
 echo "Downloading Newt from: $LATEST_URL"
 wget -q -O newt "$LATEST_URL"
