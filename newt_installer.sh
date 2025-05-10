@@ -79,9 +79,9 @@ if [ -f "$SERVICE_FILE" ]; then
             read -p "Enter your Newt ID: " ID
             read -p "Enter your Newt Secret: " SECRET
 
-            echo "Please go back to the Pangolin site and click 'I have copied the config' then 'Create Site'."
-            echo "Once you have completed those steps, return here and press Enter to continue."
-            read -p "Press Enter to continue..."
+            echo -e "\e[1;33mPlease go back to the Pangolin site and click 'I have copied the config' then 'Create Site'.\e[0m"
+            echo -e "\e[1;33mOnce you have completed those steps, return here and press Enter to continue.\e[0m"
+            read -p $'\e[1;33mPress Enter to continue...\e[0m'
 
             echo "🔄 Stopping Newt service..."
             systemctl stop newt
