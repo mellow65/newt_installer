@@ -21,6 +21,10 @@ if [ -f "$SERVICE_FILE" ]; then
             read -p "Enter your Newt Endpoint URL: " ENDPOINT
             read -p "Enter your Newt ID: " ID
             read -p "Enter your Newt Secret: " SECRET
+                
+            echo "Please go back to the Pangolin site and click 'I have copied the config' then 'Create Site'."
+            echo "Once you have completed those steps, return here and press Enter to continue."
+            read -p "Press Enter to continue..."
 
             echo "🔄 Stopping Newt service..."
             systemctl stop newt
