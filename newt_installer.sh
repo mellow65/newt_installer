@@ -4,12 +4,68 @@ set -e
 
 echo "=== Newt VPN Setup / Update Script ==="
 
-# Ask user if this is an update
-read -p "Is this an update to an existing installation? (y/n): " IS_UPDATE
-IS_UPDATE=${IS_UPDATE,,} # lowercase the response
+SERVICE_FILE="/etc/systemd/system/newt.service"
 
-if [[ "$IS_UPDATE" != "y" ]]; then
-    # Get credentials and info if not updating
+# Check if systemd service file exists
+if [ -f "$SERVICE_FILE" ]; then
+    echo "ℹ️ Detected existing Newt systemd service."
+    echo "What would you like to do?"
+    echo "1. Update Newt Credentials (id, secret, endpoint)"
+    echo "2. Update Newt to the latest version"
+    echo "3. Exit"
+    read -p "Enter your choice (1/2/3): " CHOICE
+
+    case "$CHOICE" in
+        1)
+            echo "Updating Newt Credentials..."
+            read -p "Enter your Newt Endpoint URL: " ENDPOINT
+            read -p "Enter your Newt ID: " ID
+            read -p "Enter your Newt Secret: " SECRET
+
+            echo "🔄 Stopping Newt service..."
+            systemctl stop newt
+
+            echo "🛠 Updating systemd service file at $SERVICE_FILE..."
+            sudo bash -c "cat > $SERVICE_FILE" <<EOF
+[Unit]
+Description=Newt VPN Client
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/newt --id $ID --secret $SECRET --endpoint $ENDPOINT
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+            echo "🔄 Reloading systemd and restarting Newt service..."
+            systemctl daemon-reload
+            systemctl start newt
+
+            echo "=== ✅ Newt credentials updated successfully! ==="
+            exit 0
+            ;;
+        2)
+            echo "Updating Newt to the latest version..."
+            ;;
+        3)
+            echo "Exiting..."
+            exit 0
+            ;;
+        *)
+            echo "❌ Invalid choice. Exiting..."
+            exit 1
+            ;;
+    esac
+else
+    echo "ℹ️ No existing systemd service found. Proceeding with a new installation."
+fi
+
+# New installation or updating binary
+# Get credentials and info if not updating credentials
+if [[ ! -f "$SERVICE_FILE" ]]; then
     read -p "Enter your Newt Endpoint URL: " ENDPOINT
     read -p "Enter your Newt ID: " ID
     read -p "Enter your Newt Secret: " SECRET
@@ -55,18 +111,8 @@ if [ -z "$LATEST_URL" ]; then
   exit 1
 fi
 
-# Check if systemd service file already exists
-SERVICE_FILE="/etc/systemd/system/newt.service"
-if [ -f "$SERVICE_FILE" ]; then
-    SERVICE_EXISTS=true
-    echo "ℹ️ Detected existing Newt systemd service."
-else
-    SERVICE_EXISTS=false
-    echo "ℹ️ No existing systemd service found."
-fi
-
 # Stop service if it exists
-if [ "$SERVICE_EXISTS" = true ]; then
+if [ -f "$SERVICE_FILE" ]; then
     echo "🔄 Stopping Newt service..."
     systemctl stop newt
 fi
@@ -79,7 +125,7 @@ mv newt /usr/local/bin/newt
 echo "✅ Newt installed to /usr/local/bin/newt"
 
 # Only create the service file if it's a new install
-if [ "$IS_UPDATE" != "y" ]; then
+if [[ ! -f "$SERVICE_FILE" ]]; then
     echo "🛠 Creating systemd service at $SERVICE_FILE..."
     sudo bash -c "cat > $SERVICE_FILE" <<EOF
 [Unit]
