@@ -49,6 +49,7 @@ EOF
             systemctl start newt
 
             echo "=== ✅ Newt credentials updated successfully! ==="
+            systemctl status newt --no-pager            
             exit 0
             ;;
         2)
