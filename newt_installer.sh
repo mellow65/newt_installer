@@ -34,7 +34,7 @@ EOF
 remove_newt_installation() {
     echo "⚠️ This will completely remove Newt, including the systemd service and binary."
     read -p "Are you sure you want to proceed? (y/n): " CONFIRM
-    if [[ "$CONFIRM" == "yes" ]]; then
+    if [[ "$CONFIRM" == "y" ]]; then
         if [ -f "$SERVICE_FILE" ]; then
             echo "🔄 Stopping and removing Newt service..."
             systemctl stop newt
