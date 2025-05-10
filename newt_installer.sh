@@ -19,24 +19,29 @@ if [[ "$IS_UPDATE" != "y" ]]; then
     read -p "Press Enter to continue..."
 fi
 
-# Prompt user to select the desired Linux version
-echo "Select the Linux version of Newt to install:"
-echo "1. linux_amd64"
-echo "2. linux_arm32"
-echo "3. linux_arm32v6"
-echo "4. linux_arm64"
-echo "5. linux_riscv64"
+# Automatically detect CPU architecture and operating system
+ARCH=$(uname -m)
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 
-read -p "Enter the number corresponding to your choice: " VERSION_CHOICE
-
-case "$VERSION_CHOICE" in
-  1) ARCH_SUFFIX="linux_amd64" ;;
-  2) ARCH_SUFFIX="linux_arm32" ;;
-  3) ARCH_SUFFIX="linux_arm32v6" ;;
-  4) ARCH_SUFFIX="linux_arm64" ;;
-  5) ARCH_SUFFIX="linux_riscv64" ;;
-  *) echo "❌ Invalid choice. Exiting."; exit 1 ;;
+case "$ARCH" in
+  x86_64) ARCH_SUFFIX="amd64" ;;
+  armv7l|arm) ARCH_SUFFIX="arm32" ;;
+  armv6l) ARCH_SUFFIX="arm32v6" ;;
+  aarch64) ARCH_SUFFIX="arm64" ;;
+  riscv64) ARCH_SUFFIX="riscv64" ;;
+  *) echo "❌ Unsupported architecture: $ARCH"; exit 1 ;;
 esac
+
+# Ensure the OS is supported
+case "$OS" in
+  linux|darwin|freebsd) ;;
+  *) echo "❌ Unsupported operating system: $OS"; exit 1 ;;
+esac
+
+# Combine OS and architecture for the final selection
+ARCH_SUFFIX="${OS}_${ARCH_SUFFIX}"
+
+echo "ℹ️ Detected architecture and OS: $ARCH_SUFFIX"
 
 # Get latest release URL from GitHub
 echo "Fetching latest Newt release for: $ARCH_SUFFIX..."
