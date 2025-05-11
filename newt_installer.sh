@@ -95,72 +95,6 @@ if [ -f "$SERVICE_FILE" ]; then
             ;;
         2)
             echo "Updating Newt to the latest version..."
-
-            # Check installed version
-            echo "Checking installed Newt version..."
-            if [ -x "$NEW_BINARY" ]; then
-                INSTALLED_VERSION=$($NEW_BINARY --version | grep -oP 'v\d+\.\d+\.\d+')
-                echo "Installed version: $INSTALLED_VERSION"
-            else
-                echo "No installed version detected."
-                INSTALLED_VERSION="none"
-            fi
-
-            # Fetch latest version from GitHub API
-            echo "Fetching latest Newt release version..."
-            LATEST_VERSION=$(curl -s https://api.github.com/repos/fosrl/newt/releases/latest \
-                | grep -oP '"tag_name": "\K(v\d+\.\d+\.\d+)')
-
-            if [ "$INSTALLED_VERSION" == "$LATEST_VERSION" ]; then
-                echo "✅ You already have the latest version of Newt ($INSTALLED_VERSION). No update needed."
-                exit 0
-            else
-                echo "➡️ Latest version available: $LATEST_VERSION. Proceeding with update..."
-            fi
-
-            # Fetch the latest release URL
-            ARCH=$(uname -m)
-            OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-
-            case "$ARCH" in
-              x86_64) ARCH_SUFFIX="amd64" ;;
-              armv7l|arm) ARCH_SUFFIX="arm32" ;;
-              armv6l) ARCH_SUFFIX="arm32v6" ;;
-              aarch64) ARCH_SUFFIX="arm64" ;;
-              riscv64) ARCH_SUFFIX="riscv64" ;;
-              *) echo "❌ Unsupported architecture: $ARCH"; exit 1 ;;
-            esac
-
-            case "$OS" in
-              linux|darwin|freebsd) ;;
-              *) echo "❌ Unsupported operating system: $OS"; exit 1 ;;
-            esac
-
-            ARCH_SUFFIX="${OS}_${ARCH_SUFFIX}"
-            echo "ℹ️ Detected architecture and OS: $ARCH_SUFFIX"
-
-            LATEST_URL=$(curl -s https://api.github.com/repos/fosrl/newt/releases/latest \
-              | grep "browser_download_url" \
-              | grep "$ARCH_SUFFIX" \
-              | cut -d '"' -f 4)
-
-            if [ -z "$LATEST_URL" ]; then
-              echo "❌ Failed to retrieve latest release URL for $ARCH_SUFFIX."
-              exit 1
-            fi
-
-            # Stop service if it exists
-            if [ -f "$SERVICE_FILE" ]; then
-                echo "🔄 Stopping Newt service..."
-                systemctl stop newt
-            fi
-
-            # Download and install the binary
-            echo "⬇️ Downloading Newt from: $LATEST_URL"
-            wget -q -O newt "$LATEST_URL"
-            chmod +x newt
-            mv newt /usr/local/bin/newt
-            echo "✅ Newt updated to version $LATEST_VERSION"
             ;;
         3)
             remove_newt_installation
@@ -204,14 +138,18 @@ case "$ARCH" in
   *) echo "❌ Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
+# Ensure the OS is supported
 case "$OS" in
   linux|darwin|freebsd) ;;
   *) echo "❌ Unsupported operating system: $OS"; exit 1 ;;
 esac
 
+# Combine OS and architecture for the final selection
 ARCH_SUFFIX="${OS}_${ARCH_SUFFIX}"
+
 echo "ℹ️ Detected architecture and OS: $ARCH_SUFFIX"
 
+# Get latest release URL from GitHub
 echo "Fetching latest Newt release for: $ARCH_SUFFIX..."
 LATEST_URL=$(curl -s https://api.github.com/repos/fosrl/newt/releases/latest \
   | grep "browser_download_url" \
